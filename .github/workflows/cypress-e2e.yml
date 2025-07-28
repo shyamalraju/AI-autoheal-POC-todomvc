@@ -23,13 +23,31 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
-    - name: Start React development server
+    - name: Start React development server and wait
       run: |
         echo "Starting React development server..."
         npm start &
+        
         echo "Waiting for server to be ready..."
-        npx wait-on http://localhost:9300 --timeout 60000
-        echo "Server is ready!"
+        # Wait for the server to start
+        sleep 15
+        
+        # Check if server is responding
+        for i in {1..30}; do
+          if curl -f -s http://localhost:9300 > /dev/null; then
+            echo "✅ Server is ready and responding!"
+            break
+          else
+            echo "⏳ Waiting for server... (attempt $i/30)"
+            sleep 2
+          fi
+        done
+        
+        # Final check
+        if ! curl -f -s http://localhost:9300 > /dev/null; then
+          echo "❌ Server failed to start properly"
+          exit 1
+        fi
         
     - name: Run Cypress tests
       run: |
