@@ -16,7 +16,6 @@ This POC implements an automated test pipeline that:
 
 1. **`cypress-e2e.yml`** - Main test execution workflow
    - Runs on push/PR to master/main
-   - Scheduled daily monitoring at 2 AM UTC
    - Captures screenshots and videos on failure
    - Triggers auto-healing pipeline on failure
 
