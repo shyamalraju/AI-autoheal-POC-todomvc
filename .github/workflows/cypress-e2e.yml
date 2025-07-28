@@ -47,6 +47,8 @@ jobs:
       run: |
         echo "🚨 Test failure detected! Auto-healing pipeline triggered."
         echo "Failure details will be sent to auto-healing system."
+        echo "Workflow run ID: ${{ github.run_id }}"
+        echo "Failure URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         # TODO: Add auto-healing integration here
         # - Send failure details to AI system
         # - Generate potential fixes
