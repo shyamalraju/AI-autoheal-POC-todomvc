@@ -14,6 +14,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        ref: master
       
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -99,4 +101,5 @@ jobs:
           2. Run tests locally
           3. Merge if tests pass
         branch: auto-healing/fix-${{ github.run_number }}-${{ github.sha }}
+        base: master
         delete-branch: true 
