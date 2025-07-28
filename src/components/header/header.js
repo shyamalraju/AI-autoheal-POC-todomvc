@@ -25,14 +25,14 @@ export class Header extends Component {
   render() {
     return (
       <header className="header">
-        <h1>todos</h1>
+        <h1>todo's</h1>
         <input
           className="new-todo"
           placeholder="What needs to be done?"
           value={this.state.name}
           onInput={e => this.handleChange(e)}
           onKeyUp={e => this.handleSubmit(e)}
-          onChange={() => {}}
+          onChange={() => { }}
           data-testid="todo-create"
         />
       </header>
