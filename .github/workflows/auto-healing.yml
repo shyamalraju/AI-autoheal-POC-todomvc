@@ -62,7 +62,7 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git checkout -b auto-healing/fix-${{ github.run_number }}
+        git checkout -b auto-healing/fix-${{ github.run_number }}-${{ github.sha }}
         
     - name: Apply AI-generated fixes
       run: |
@@ -98,5 +98,5 @@ jobs:
           1. Review the changes
           2. Run tests locally
           3. Merge if tests pass
-        branch: auto-healing/fix-${{ github.run_number }}
+        branch: auto-healing/fix-${{ github.run_number }}-${{ github.sha }}
         delete-branch: true 
