@@ -1,0 +1,53 @@
+name: Cypress E2E Tests with Auto-Healing
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  cypress-e2e:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Start application and run Cypress tests
+      run: npm run test:e2e
+      
+    - name: Upload Cypress screenshots on failure
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: cypress-screenshots
+        path: cypress/screenshots
+        if-no-files-found: ignore
+        
+    - name: Upload Cypress videos on failure
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: cypress-videos
+        path: cypress/videos
+        if-no-files-found: ignore
+        
+    - name: Auto-healing notification
+      if: failure()
+      run: |
+        echo "🚨 Test failure detected! Auto-healing pipeline triggered."
+        echo "Failure details will be sent to auto-healing system."
+        # TODO: Add auto-healing integration here
+        # - Send failure details to AI system
+        # - Generate potential fixes
+        # - Create pull request with fixes 

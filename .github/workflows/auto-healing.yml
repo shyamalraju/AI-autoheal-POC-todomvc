@@ -1,0 +1,93 @@
+name: AI Auto-Healing Pipeline
+
+on:
+  workflow_run:
+    workflows: ["Cypress E2E Tests with Auto-Healing"]
+    types: [completed]
+    branches: [master, main]
+
+jobs:
+  auto-healing:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Download Cypress artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: cypress-screenshots
+        path: cypress/screenshots
+        
+    - name: Download Cypress videos
+      uses: actions/download-artifact@v4
+      with:
+        name: cypress-videos
+        path: cypress/videos
+        
+    - name: Analyze test failures
+      run: |
+        echo "🔍 Analyzing test failures for auto-healing..."
+        echo "Test failure detected in workflow: ${{ github.event.workflow_run.name }}"
+        echo "Workflow run ID: ${{ github.event.workflow_run.id }}"
+        echo "Failure URL: ${{ github.event.workflow_run.html_url }}"
+        
+    - name: Generate AI-powered fixes
+      run: |
+        echo "🤖 AI Auto-Healing System Activated"
+        echo "Analyzing failure patterns and generating potential fixes..."
+        echo "This is where you would integrate with:"
+        echo "- OpenAI API for test analysis"
+        echo "- Custom AI models for test repair"
+        echo "- Testim or Mabl for visual regression fixes"
+        echo "- Selenium IDE for selector updates"
+        
+    - name: Create auto-healing branch
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git checkout -b auto-healing/fix-${{ github.run_number }}
+        
+    - name: Apply AI-generated fixes
+      run: |
+        echo "🔧 Applying AI-generated fixes..."
+        echo "This step would:"
+        echo "1. Update selectors if elements changed"
+        echo "2. Fix timing issues"
+        echo "3. Update test expectations"
+        echo "4. Add retry mechanisms"
+        echo "5. Update test data"
+        
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        title: "🤖 Auto-healing: Fix test failures"
+        body: |
+          ## AI Auto-Healing Fix
+          
+          This PR contains automated fixes for failing tests detected by the auto-healing pipeline.
+          
+          **Changes made:**
+          - [ ] Updated selectors
+          - [ ] Fixed timing issues  
+          - [ ] Updated test expectations
+          - [ ] Added retry mechanisms
+          
+          **Test Results:**
+          - Original failure: ${{ github.event.workflow_run.html_url }}
+          - Auto-healing run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          
+          **Next Steps:**
+          1. Review the changes
+          2. Run tests locally
+          3. Merge if tests pass
+        branch: auto-healing/fix-${{ github.run_number }}
+        delete-branch: true 
