@@ -148,8 +148,8 @@ jobs:
           # Create mock analysis for testing
           cat > claude_analysis.txt << EOF
         {
-          "analysis": "Mock analysis: Test is looking for h1 with text 'todos' but DOM contains h1 with text 'todo's'",
-          "fix": "Update the test selector from cy.contains('h1', 'todos') to cy.contains('h1', \"todo's\")"
+          "analysis": "Mock analysis: Test is looking for h1 with text 'google' but DOM contains h1 with text 'gogole images'",
+          "fix": "Update the test selector from cy.contains('h1', 'google') to cy.contains('h1', "google images")"
         }
         EOF
           echo "📄 Mock analysis created for testing purposes"
@@ -221,54 +221,33 @@ jobs:
           echo "📄 Fix recommendations found"
           
           RECOMMENDED_FIX=$(cat recommended_fix.txt)
-          echo "🔍 Applying fix: $RECOMMENDED_FIX"
+          echo "🔍 Recommended fix: $RECOMMENDED_FIX"
           
-          # Apply common selector fixes based on Claude's analysis
-          if echo "$RECOMMENDED_FIX" | grep -q "todos.*todo's"; then
-            echo "🔄 Applying text content fix: todos → todo's"
-            
-            # Update the test file
-            if [ -f "tests/e2e/new-todo.spec.js" ]; then
-              # Replace 'todos' with "todo's" in the test
-              sed -i "s/cy\.contains('h1', 'todos')/cy.contains('h1', \"todo's\")/g" tests/e2e/new-todo.spec.js
-              echo "✅ Updated selector in test file"
-              
-              # Show the change
-              echo "📝 Applied change:"
-              grep -n "todo's" tests/e2e/new-todo.spec.js || echo "Change not found in file"
-            else
-              echo "⚠️ Test file not found for applying fix"
-            fi
-            
-          elif echo "$RECOMMENDED_FIX" | grep -qi "selector.*update"; then
-            echo "🔄 Generic selector update detected"
-            echo "📝 Fix details: $RECOMMENDED_FIX"
-            echo "⚠️ Manual review required for complex selector changes"
-            
-          else
-            echo "📝 Custom fix recommendation:"
-            echo "$RECOMMENDED_FIX"
-            echo "⚠️ Fix requires manual review and implementation"
-          fi
+          # For now, just document the recommended fixes as comments
+          echo "📝 Creating fix documentation..."
           
-          # Create a summary of changes
-          echo "📊 Summary of applied fixes:" > fix_summary.txt
+          # Create a summary of recommended changes
+          echo "📊 Summary of recommended fixes:" > fix_summary.txt
           echo "- Recommendation: $RECOMMENDED_FIX" >> fix_summary.txt
-          echo "- Files modified: tests/e2e/new-todo.spec.js" >> fix_summary.txt
+          echo "- Files to modify: tests/e2e/new-todo.spec.js" >> fix_summary.txt
           echo "- Change type: Selector/locator update" >> fix_summary.txt
+          echo "- Status: Documented for manual review" >> fix_summary.txt
+          
+          echo "✅ Fix recommendations documented"
+          echo "📋 Manual review required to apply changes"
           
         else
           echo "⚠️ No fix recommendations found"
           echo "📝 Creating placeholder fix summary"
           
           cat > fix_summary.txt << EOF
-        No specific fixes applied automatically.
+        No specific fixes recommended.
         Manual review of test failure required.
         Check Claude analysis for detailed recommendations.
         EOF
         fi
         
-        echo "✅ Fix application completed"
+        echo "✅ Fix documentation completed"
         
     - name: Push auto-healing branch
       run: |
