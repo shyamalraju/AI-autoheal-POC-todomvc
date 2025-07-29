@@ -1,0 +1,4 @@
+📊 Summary of applied fixes:
+- Recommendation: Update the test selector from cy.contains('h1', 'todos') to cy.contains('h1', "todo's")
+- Files modified: tests/e2e/new-todo.spec.js
+- Change type: Selector/locator update

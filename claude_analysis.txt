@@ -1,0 +1,4 @@
+{
+  "analysis": "Mock analysis: Test is looking for h1 with text 'todos' but DOM contains h1 with text 'todo's'",
+  "fix": "Update the test selector from cy.contains('h1', 'todos') to cy.contains('h1', \"todo's\")"
+}
