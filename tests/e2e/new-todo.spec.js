@@ -1,11 +1,19 @@
 describe('New todo', () => {
   afterEach(function () {
     if (this.currentTest.state === 'failed') {
-      cy.screenshot(`${this.currentTest.title} (failure)`);
+      const testTitle = this.currentTest.title.replace(/[<>:"\/\\|?*]+/g, '-'); // Sanitize filename
+      const errorMessage = this.currentTest.err?.stack || this.currentTest.err?.message || 'Unknown error';
+
+      cy.screenshot(`${testTitle} (failure)`);
 
       cy.document().then((doc) => {
         const html = doc.documentElement.outerHTML;
-        cy.writeFile(`cypress/failures/${this.currentTest.title}.html`, html);
+
+        // Write DOM snapshot
+        cy.writeFile(`cypress/failures/${testTitle}.html`, html);
+
+        // Write error message
+        cy.writeFile(`cypress/failures/${testTitle}.log.txt`, errorMessage);
       });
     }
   });
