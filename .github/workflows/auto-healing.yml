@@ -68,6 +68,63 @@ jobs:
         # Note: Videos are disabled in cypress.json (video: false)
         echo "ℹ️ Videos are disabled in Cypress configuration"
         
+    - name: AI Analysis with Claude
+      run: |
+        echo "🤖 Sending test context to Claude AI for analysis..."
+        
+        # Prepare test context for Claude
+        echo "Preparing test context..."
+        
+        # Get test file content
+        if [ -f "tests/e2e/new-todo.spec.js" ]; then
+          echo "📄 Test file found"
+          TEST_CONTENT=$(cat tests/e2e/new-todo.spec.js)
+        else
+          echo "⚠️ Test file not found"
+          TEST_CONTENT="Test file not available"
+        fi
+        
+        # Get DOM content if available
+        if [ -d "cypress/failures" ] && [ "$(ls -A cypress/failures 2>/dev/null)" ]; then
+          DOM_FILE=$(ls cypress/failures/*.html | head -1)
+          if [ -f "$DOM_FILE" ]; then
+            echo "🌐 DOM content found: $DOM_FILE"
+            # Get a snippet of DOM content (first 2000 characters to avoid token limits)
+            DOM_CONTENT=$(head -c 2000 "$DOM_FILE")
+          else
+            DOM_CONTENT="DOM content not available"
+          fi
+        else
+          DOM_CONTENT="DOM content not available"
+        fi
+        
+        # Create context payload
+        cat > test_context.json << EOF
+        {
+          "test_failure": {
+            "workflow_name": "${{ github.event.workflow_run.name }}",
+            "workflow_id": "${{ github.event.workflow_run.id }}",
+            "failure_url": "${{ github.event.workflow_run.html_url }}",
+            "repository": "${{ github.repository }}",
+            "test_content": $(echo "$TEST_CONTENT" | jq -Rs .),
+            "dom_content": $(echo "$DOM_CONTENT" | jq -Rs .),
+            "has_screenshots": $([ -d "cypress/screenshots" ] && [ "$(ls -A cypress/screenshots 2>/dev/null)" ] && echo "true" || echo "false"),
+            "has_dom_content": $([ -d "cypress/failures" ] && [ "$(ls -A cypress/failures 2>/dev/null)" ] && echo "true" || echo "false")
+          }
+        }
+        EOF
+        
+        echo "✅ Test context prepared for Claude AI analysis"
+        echo "📊 Context summary:"
+        echo "- Test content: $(echo "$TEST_CONTENT" | wc -l) lines"
+        echo "- DOM content: $(echo "$DOM_CONTENT" | wc -c) characters"
+        echo "- Has screenshots: $([ -d "cypress/screenshots" ] && [ "$(ls -A cypress/screenshots 2>/dev/null)" ] && echo "Yes" || echo "No")"
+        echo "- Has DOM content: $([ -d "cypress/failures" ] && [ "$(ls -A cypress/failures 2>/dev/null)" ] && echo "Yes" || echo "No")"
+        
+        # TODO: Send to Claude API
+        echo "🔄 Next: Send context to Claude API for failure analysis"
+        echo "🔄 Claude will analyze: test expectations vs actual DOM state"
+        
     - name: Generate AI-powered fixes
       run: |
         echo "🤖 AI Auto-Healing System Activated"
