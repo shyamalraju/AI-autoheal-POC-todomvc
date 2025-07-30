@@ -68,105 +68,103 @@ jobs:
         # Note: Videos are disabled in cypress.json (video: false)
         echo "ℹ️ Videos are disabled in Cypress configuration"
         
-    - name: AI Analysis with OpenAI
+    - name: AI Analysis with 
       run: |
-        echo "🤖 Sending test context to OpenAI for analysis..."
-        
-        # Prepare test context for OpenAI
-        echo "Preparing test context..."
-        
-        # Get test file content
-        if [ -f "tests/e2e/new-todo.spec.js" ]; then
-          echo "📄 Test file found"
-          TEST_CONTENT=$(cat tests/e2e/new-todo.spec.js)
-        else
-          echo "⚠️ Test file not found"
-          TEST_CONTENT="Test file not available"
-        fi
-        
-        # Get DOM content if available
-        if [ -d "cypress/failures" ] && [ "$(ls -A cypress/failures 2>/dev/null)" ]; then
-          DOM_FILE=$(ls cypress/failures/*.html | head -1)
-          if [ -f "$DOM_FILE" ]; then
-            echo "🌐 DOM content found: $DOM_FILE"
-            # Get a snippet of DOM content (first 2000 characters to avoid token limits)
-            DOM_CONTENT=$(head -c 2000 "$DOM_FILE")
-          else
-            DOM_CONTENT="DOM content not available"
-          fi
-        else
-          DOM_CONTENT="DOM content not available"
-        fi
-        
-        # Create OpenAI API payload
-        cat > openai_payload.json << EOF
-        {
-          "model": "gpt-4",
-          "messages": [
-            {
-              "role": "system",
-              "content": "You are an expert test automation engineer specializing in fixing Cypress test failures. Analyze test failures and provide specific selector/locator fixes."
-            },
-            {
-              "role": "user",
-              "content": "Analyze the following test failure and provide specific selector/locator fixes.\n\n**INSTRUCTIONS:**\n1. Compare the test expectations with the actual DOM content\n2. Identify why selectors are failing (element not found, text mismatch, etc.)\n3. Provide the exact code changes needed to fix the test\n4. Focus on selector/locator fixes only\n5. Respond in JSON format with 'analysis' and 'fix' fields\n\n**TEST FILE:**\n\`\`\`javascript\n${TEST_CONTENT}\n\`\`\`\n\n**ACTUAL DOM CONTENT:**\n\`\`\`html\n${DOM_CONTENT}\n\`\`\`\n\n**WORKFLOW INFO:**\n- Repository: ${{ github.repository }}\n- Workflow: ${{ github.event.workflow_run.name }}\n- Failure URL: ${{ github.event.workflow_run.html_url }}\n\nProvide your analysis and fix in JSON format."
-            }
-          ],
-          "max_tokens": 1000,
-          "temperature": 0.1
-        }
-        EOF
-        
-        echo "✅ OpenAI API payload prepared"
-        
-        # Send to OpenAI API
-        if [ -n "${{ secrets.OPENAI_API_KEY }}" ]; then
-          echo "🔄 Sending request to OpenAI API..."
-
-          echo "Request payload: "
-          cat openai_payload.json
-            
-          OPENAI_RESPONSE=$(curl -s -X POST https://api.openai.com/v1/chat/completions \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
-            -d @openai_payload.json)
-          
-          echo "✅ OpenAI API response received"
-          echo "$OPENAI_RESPONSE" > openai_response.json
-          
-          # Extract the analysis from OpenAI's response
-          if echo "$OPENAI_RESPONSE" | jq -e '.choices[0].message.content' > /dev/null 2>&1; then
-            OPENAI_ANALYSIS=$(echo "$OPENAI_RESPONSE" | jq -r '.choices[0].message.content')
-            echo "🤖 OpenAI Analysis:"
-            echo "$OPENAI_ANALYSIS"
-            
-            # Save analysis for next steps
-            echo "$OPENAI_ANALYSIS" > openai_analysis.txt
-            echo "✅ OpenAI analysis saved for fix application"
-          else
-            echo "❌ Error parsing OpenAI response"
-            echo "$OPENAI_RESPONSE"
-          fi
-          
-        else
-          echo "⚠️ OPENAI_API_KEY not found in secrets"
-          echo "🔄 Skipping OpenAI API call - add OPENAI_API_KEY to repository secrets"
-          
-          # Create mock analysis for testing
-          cat > openai_analysis.txt << EOF
-        {
-          "analysis": "Mock analysis: Test is looking for h1 with text 'todos' but DOM contains h1 with text 'todo's'",
-          "fix": "Update the test selector from cy.contains('h1', 'todos') to cy.contains('h1', \"todo's\")"
-        }
-        EOF
-          echo "📄 Mock analysis created for testing purposes"
-        fi
-        
-        echo "📊 Context summary:"
-        echo "- Test content: $(echo "$TEST_CONTENT" | wc -l) lines"
-        echo "- DOM content: $(echo "$DOM_CONTENT" | wc -c) characters"
-        echo "- Has screenshots: $([ -d "cypress/screenshots" ] && [ "$(ls -A cypress/screenshots 2>/dev/null)" ] && echo "Yes" || echo "No")"
-        echo "- Has DOM content: $([ -d "cypress/failures" ] && [ "$(ls -A cypress/failures 2>/dev/null)" ] && echo "Yes" || echo "No")"
+       echo "🤖 Sending test context to OpenAI for analysis..."
+       echo "Preparing test context..."
+       # Get test file content
+       if [ -f "tests/e2e/new-todo.spec.js" ]; then
+         echo "📄 Test file found"
+         TEST_CONTENT=$(cat tests/e2e/new-todo.spec.js)
+       else
+         echo "⚠️ Test file not found"
+         TEST_CONTENT="Test file not available"
+       fi
+       # Get DOM content if available
+       if [ -d "cypress/failures" ] && [ "$(ls -A cypress/failures 2>/dev/null)" ]; then
+         DOM_FILE=$(ls cypress/failures/*.html | head -1)
+         if [ -f "$DOM_FILE" ]; then
+           echo "🌐 DOM content found: $DOM_FILE"
+           DOM_CONTENT=$(head -c 2000 "$DOM_FILE")
+         else
+           DOM_CONTENT="DOM content not available"
+         fi
+       else
+         DOM_CONTENT="DOM content not available"
+       fi
+       # Create OpenAI API payload with jq
+       jq -n \
+         --arg test_content "$TEST_CONTENT" \
+         --arg dom_content "$DOM_CONTENT" \
+         --arg repo "${{ github.repository }}" \
+         --arg workflow "${{ github.event.workflow_run.name }}" \
+         --arg url "${{ github.event.workflow_run.html_url }}" \
+         '{
+           model: "gpt-4",
+           messages: [
+             {
+               role: "system",
+               content: "You are an expert test automation engineer specializing in fixing Cypress test failures. Analyze test failures and provide specific selector/locator fixes."
+             },
+             {
+               role: "user",
+               content: (
+                 "Analyze the following test failure and provide specific selector/locator fixes.\n\n" +
+                 "**INSTRUCTIONS:**\n" +
+                 "1. Compare the test expectations with the actual DOM content\n" +
+                 "2. Identify why selectors are failing (element not found, text mismatch, etc.)\n" +
+                 "3. Provide the exact code changes needed to fix the test\n" +
+                 "4. Focus on selector/locator fixes only\n" +
+                 "5. Respond in JSON format with 'analysis' and 'fix' fields\n\n" +
+                 "**TEST FILE:**\n```javascript\n" + $test_content + "\n```\n\n" +
+                 "**ACTUAL DOM CONTENT:**\n```html\n" + $dom_content + "\n```\n\n" +
+                 "**WORKFLOW INFO:**\n" +
+                 "- Repository: " + $repo + "\n" +
+                 "- Workflow: " + $workflow + "\n" +
+                 "- Failure URL: " + $url + "\n\n" +
+                 "Provide your analysis and fix in JSON format."
+               )
+             }
+           ],
+           max_tokens: 1000,
+           temperature: 0.1
+         }' > openai_payload.json
+       echo "✅ OpenAI API payload prepared"
+       # Send to OpenAI API
+       if [ -n "${{ secrets.OPENAI_API_KEY }}" ]; then
+         echo "🔄 Sending request to OpenAI API..."
+         OPENAI_RESPONSE=$(curl -s -X POST https://api.openai.com/v1/chat/completions \
+           -H "Content-Type: application/json" \
+           -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
+           -d @openai_payload.json)
+         echo "✅ OpenAI API response received"
+         echo "$OPENAI_RESPONSE" > openai_response.json
+         if echo "$OPENAI_RESPONSE" | jq -e '.choices[0].message.content' > /dev/null 2>&1; then
+           OPENAI_ANALYSIS=$(echo "$OPENAI_RESPONSE" | jq -r '.choices[0].message.content')
+           echo "🤖 OpenAI Analysis:"
+           echo "$OPENAI_ANALYSIS"
+           echo "$OPENAI_ANALYSIS" > openai_analysis.txt
+           echo "✅ OpenAI analysis saved for fix application"
+         else
+           echo "❌ Error parsing OpenAI response"
+           echo "$OPENAI_RESPONSE"
+         fi
+       else
+         echo "⚠️ OPENAI_API_KEY not found in secrets"
+         echo "🔄 Skipping OpenAI API call - add OPENAI_API_KEY to repository secrets"
+         cat > openai_analysis.txt <<EOF
+         {
+         "analysis": "Mock analysis: Test is looking for h1 with text 'todos' but DOM contains h1 with text 'todo's'",
+         "fix": "Update the test selector from cy.contains('h1', 'todos') to cy.contains('h1', \"todo's\")"
+         }
+         EOF
+         echo "📄 Mock analysis created for testing purposes"
+       fi
+       echo "📊 Context summary:"
+       echo "- Test content: $(echo "$TEST_CONTENT" | wc -l) lines"
+       echo "- DOM content: $(echo "$DOM_CONTENT" | wc -c) characters"
+       echo "- Has screenshots: $([ -d "cypress/screenshots" ] && [ "$(ls -A cypress/screenshots 2>/dev/null)" ] && echo "Yes" || echo "No")"
+       echo "- Has DOM content: $([ -d "cypress/failures" ] && [ "$(ls -A cypress/failures 2>/dev/null)" ] && echo "Yes" || echo "No")"
         
     - name: Generate AI-powered fixes
       run: |
