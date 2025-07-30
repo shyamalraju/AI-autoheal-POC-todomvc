@@ -6,13 +6,9 @@ describe('New todo', () => {
 
       cy.screenshot(`${testTitle} (failure)`);
 
-      cy.document().then((doc) => {
-        const html = doc.documentElement.outerHTML;
-
-        // Write DOM snapshot
+      cy.window({ log: false }).then((win) => {
+        const html = win.document.documentElement.outerHTML;
         cy.writeFile(`cypress/failures/${testTitle}.html`, html);
-
-        // Write error message
         cy.writeFile(`cypress/failures/${testTitle}.log.txt`, errorMessage);
       });
     }
