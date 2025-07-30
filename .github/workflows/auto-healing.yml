@@ -67,7 +67,7 @@ jobs:
         
         # Note: Videos are disabled in cypress.json (video: false)
         echo "ℹ️ Videos are disabled in Cypress configuration"
-        
+
     - name: AI Analysis with 
       run: |
        echo "🤖 Sending test context to OpenAI for analysis..."
