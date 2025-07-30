@@ -122,7 +122,10 @@ jobs:
         # Send to OpenAI API
         if [ -n "${{ secrets.OPENAI_API_KEY }}" ]; then
           echo "🔄 Sending request to OpenAI API..."
-          
+
+          echo "Request payload: "
+          cat openai_payload.json
+            
           OPENAI_RESPONSE=$(curl -s -X POST https://api.openai.com/v1/chat/completions \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
