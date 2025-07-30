@@ -39,6 +39,14 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         repository: ${{ github.repository }}
         run-id: ${{ github.event.workflow_run.id }}
+    
+    - name: Display DOM content
+      run: |
+        for f in cypress/failures/*.html; do
+          echo "::group::Contents of $f"
+          cat "$f"
+          echo "::endgroup::"
+        done
         
     - name: Analyze test failures
       run: |
