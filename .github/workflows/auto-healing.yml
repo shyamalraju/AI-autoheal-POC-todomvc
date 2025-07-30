@@ -129,6 +129,10 @@ jobs:
            max_tokens: 1000,
            temperature: 0.1
          }' > openai_payload.json
+         
+       echo "Request payload: "
+       cat openai_payload.json
+         
        echo "✅ OpenAI API payload prepared"
        # Send to OpenAI API
        if [ -n "${{ secrets.OPENAI_API_KEY }}" ]; then
