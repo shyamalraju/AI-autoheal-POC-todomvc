@@ -143,8 +143,22 @@ jobs:
            temperature: 0.1
          }' > openai_payload.json
          
-       echo "Request payload: "
-       cat openai_payload.json
+        echo "::group::📤 OpenAI Request Payload"
+        echo "🤖 Model: gpt-4"
+        echo "🎯 Max Tokens: 1000"
+        echo "🌡️ Temperature: 0.1"
+        echo ""
+        echo "📋 System Message:"
+        echo "You are an expert test automation engineer specializing in fixing Cypress test failures."
+        echo ""
+        echo "👤 User Message Summary:"
+        echo "- Instructions: 5 steps for analyzing test failures"
+        echo "- Test File: $(echo "$TEST_CONTENT" | wc -l) lines of Cypress test code"
+        echo "- DOM Content: $(echo "$DOM_CONTENT" | wc -c) characters of cleaned HTML"
+        echo "- Workflow Info: Repository, workflow name, and failure URL"
+        echo ""
+        echo "🔍 Full payload saved to openai_payload.json for debugging"
+        echo "::endgroup::"
          
        echo "✅ OpenAI API payload prepared"
        # Send to OpenAI API
@@ -156,16 +170,18 @@ jobs:
            -d @openai_payload.json)
          echo "✅ OpenAI API response received"
          echo "$OPENAI_RESPONSE" > openai_response.json
-         if echo "$OPENAI_RESPONSE" | jq -e '.choices[0].message.content' > /dev/null 2>&1; then
-           OPENAI_ANALYSIS=$(echo "$OPENAI_RESPONSE" | jq -r '.choices[0].message.content')
-           echo "🤖 OpenAI Analysis:"
-           echo "$OPENAI_ANALYSIS"
-           echo "$OPENAI_ANALYSIS" > openai_analysis.txt
-           echo "✅ OpenAI analysis saved for fix application"
-         else
-           echo "❌ Error parsing OpenAI response"
-           echo "$OPENAI_RESPONSE"
-         fi
+                 if echo "$OPENAI_RESPONSE" | jq -e '.choices[0].message.content' > /dev/null 2>&1; then
+          OPENAI_ANALYSIS=$(echo "$OPENAI_RESPONSE" | jq -r '.choices[0].message.content')
+          echo "::group::🤖 OpenAI Analysis Response"
+          echo "$OPENAI_ANALYSIS"
+          echo "::endgroup::"
+          echo "$OPENAI_ANALYSIS" > openai_analysis.txt
+          echo "✅ OpenAI analysis saved for fix application"
+        else
+          echo "::group::❌ OpenAI Response Error"
+          echo "$OPENAI_RESPONSE" | jq '.' || echo "$OPENAI_RESPONSE"
+          echo "::endgroup::"
+        fi
        else
          echo "⚠️ OPENAI_API_KEY not found in secrets"
        fi
