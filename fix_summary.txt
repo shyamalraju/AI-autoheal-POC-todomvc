@@ -1,0 +1,10 @@
+📊 Summary of recommended fixes:
+- Recommendation: {
+  "code_changes": {
+    "old": "cy.contains('h1', 'todos');",
+    "new": "cy.contains('h1', \"todo's\");"
+  }
+}
+- Files to modify: tests/e2e/new-todo.spec.js
+- Change type: Selector/locator update
+- Status: Documented for manual review
