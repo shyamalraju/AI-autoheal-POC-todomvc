@@ -67,7 +67,6 @@ jobs:
         
         # Note: Videos are disabled in cypress.json (video: false)
         echo "ℹ️ Videos are disabled in Cypress configuration"
-
     - name: AI Analysis with 
       run: |
        echo "🤖 Sending test context to OpenAI for analysis..."
@@ -205,7 +204,7 @@ jobs:
           echo "🔄 Fallback: Basic selector update based on common patterns"
           
           # Create a basic fix suggestion
-          cat > recommended_fix.txt << EOF
+          cat > recommended_fix.txt <<EOF
         Fallback fix: Check for common issues:
         1. Text content mismatch (todos vs todo's)
         2. Element not found
