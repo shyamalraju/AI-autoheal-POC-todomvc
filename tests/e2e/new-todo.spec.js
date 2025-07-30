@@ -6,16 +6,19 @@ describe('New todo', () => {
 
       cy.screenshot(`${testTitle} (failure)`);
 
-      cy.window({ log: false }).then((win) => {
-        const html = win.document.documentElement.outerHTML;
-        cy.writeFile(`cypress/failures/${testTitle}.html`, html);
-        cy.writeFile(`cypress/failures/${testTitle}.log.txt`, errorMessage);
-      });
+      // cy.window({ log: false }).then((win) => {
+      //   const html = win.document.documentElement.outerHTML;
+      //   cy.writeFile(`cypress/failures/${testTitle}.html`, html);
+      //   cy.writeFile(`cypress/failures/${testTitle}.log.txt`, errorMessage);
+      // });
     }
   });
 
   it('should create new todo', () => {
     cy.visit('/');
+    cy.window().then((win) => {
+     cy.writeFile('cypress/failures/snapshot-before-contains.html', win.document.documentElement.outerHTML);
+    });
     cy.contains('h1', 'todos');
 
     cy.get('.new-todo')
