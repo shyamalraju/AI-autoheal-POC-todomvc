@@ -154,14 +154,6 @@ jobs:
          fi
        else
          echo "⚠️ OPENAI_API_KEY not found in secrets"
-         echo "🔄 Skipping OpenAI API call - add OPENAI_API_KEY to repository secrets"
-         cat > openai_analysis.txt <<EOF
-         {
-         "analysis": "Mock analysis: Test is looking for h1 with text 'todos' but DOM contains h1 with text 'todo's'",
-         "fix": "Update the test selector from cy.contains('h1', 'todos') to cy.contains('h1', \"todo's\")"
-         }
-         EOF
-         echo "📄 Mock analysis created for testing purposes"
        fi
        echo "📊 Context summary:"
        echo "- Test content: $(echo "$TEST_CONTENT" | wc -l) lines"
