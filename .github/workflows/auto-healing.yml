@@ -40,13 +40,17 @@ jobs:
         repository: ${{ github.repository }}
         run-id: ${{ github.event.workflow_run.id }}
     
-    - name: Display DOM content
+    - name: Display cleaned DOM content
       run: |
-        for f in cypress/failures/*.html; do
-          echo "::group::Contents of $f"
-          cat "$f"
-          echo "::endgroup::"
-        done
+        if [ -d "cypress/failures" ] && [ "$(find cypress/failures -name '*-clean.html' | head -1)" ]; then
+          for f in cypress/failures/*-clean.html; do
+            echo "::group::Cleaned DOM Contents of $f"
+            cat "$f"
+            echo "::endgroup::"
+          done
+        else
+          echo "⚠️ No cleaned DOM content files found"
+        fi
         
     - name: Analyze test failures
       run: |
@@ -69,6 +73,8 @@ jobs:
           echo "✅ DOM content found and downloaded"
           echo "🌐 Available DOM files:"
           ls -la cypress/failures/
+          echo "📋 Raw files: $(find cypress/failures -name '*.html' ! -name '*-clean.html' | wc -l)"
+          echo "🧹 Cleaned files: $(find cypress/failures -name '*-clean.html' | wc -l)"
         else
           echo "⚠️ No DOM content available for analysis"
         fi
@@ -89,10 +95,10 @@ jobs:
        fi
        # Get DOM content if available
        if [ -d "cypress/failures" ] && [ "$(ls -A cypress/failures 2>/dev/null)" ]; then
-         DOM_FILE=$(ls cypress/failures/*.html | head -1)
-         if [ -f "$DOM_FILE" ]; then
-           echo "🌐 DOM content found: $DOM_FILE"
-           DOM_CONTENT=$(head -c 2000 "$DOM_FILE")
+                 DOM_FILE=$(ls cypress/failures/*-clean.html | head -1)
+        if [ -f "$DOM_FILE" ]; then
+          echo "🌐 Cleaned DOM content found: $DOM_FILE"
+          DOM_CONTENT=$(cat "$DOM_FILE")
          else
            DOM_CONTENT="DOM content not available"
          fi

@@ -62,6 +62,12 @@ jobs:
         path: cypress/screenshots
         if-no-files-found: ignore
         
+    - name: Clean DOM content for AI analysis
+      if: failure()
+      run: |
+        echo "🧹 Cleaning DOM content for AI analysis..."
+        node scripts/clean-dom.js
+        
     - name: Upload DOM content on failure
       uses: actions/upload-artifact@v4
       if: failure()

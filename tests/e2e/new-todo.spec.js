@@ -8,10 +8,10 @@ describe('New todo', () => {
 
       cy.document().then((doc) => {
         const html = doc.documentElement.outerHTML;
- 
+
         // Write DOM snapshot
         cy.writeFile(`cypress/failures/${testTitle}.html`, html);
- 
+
         // Write error message
         cy.writeFile(`cypress/failures/${testTitle}.log.txt`, errorMessage);
       });
@@ -20,9 +20,6 @@ describe('New todo', () => {
 
   it('should create new todo', () => {
     cy.visit('/');
-    cy.window().then((win) => {
-     cy.writeFile('cypress/failures/snapshot-before-contains.html', win.document.documentElement.outerHTML);
-    });
     cy.contains('h1', 'todos');
 
     cy.get('.new-todo')
