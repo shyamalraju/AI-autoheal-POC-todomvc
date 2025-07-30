@@ -1,0 +1,5 @@
+Fallback fix: Check for common issues:
+1. Text content mismatch (todos vs todo's)
+2. Element not found
+3. Timing issues
+4. Selector changes
