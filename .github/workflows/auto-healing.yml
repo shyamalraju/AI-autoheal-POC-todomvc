@@ -143,7 +143,7 @@ jobs:
            temperature: 0.1
          }' > openai_payload.json
          
-        echo "::group::📤 OpenAI Request Payload"
+        echo "::group::📤 OpenAI Request Payload Summary"
         echo "🤖 Model: gpt-4"
         echo "🎯 Max Tokens: 1000"
         echo "🌡️ Temperature: 0.1"
@@ -156,8 +156,33 @@ jobs:
         echo "- Test File: $(echo "$TEST_CONTENT" | wc -l) lines of Cypress test code"
         echo "- DOM Content: $(echo "$DOM_CONTENT" | wc -c) characters of cleaned HTML"
         echo "- Workflow Info: Repository, workflow name, and failure URL"
-        echo ""
-        echo "🔍 Full payload saved to openai_payload.json for debugging"
+        echo "::endgroup::"
+        
+        # Extract test name from DOM file
+        TEST_NAME=$(basename "$DOM_FILE" -clean.html 2>/dev/null || echo "Unknown test")
+        
+        echo "::group::🧪 Test Name"
+        echo "$TEST_NAME"
+        echo "::endgroup::"
+        
+        # Show error message if available
+        ERROR_LOG_FILE="${DOM_FILE%-clean.html}.log.txt"
+        if [ -f "$ERROR_LOG_FILE" ]; then
+          echo "::group::❌ Error Message"
+          cat "$ERROR_LOG_FILE"
+          echo "::endgroup::"
+        else
+          echo "::group::❌ Error Message"
+          echo "Error log not available"
+          echo "::endgroup::"
+        fi
+        
+        echo "::group::🧹 Test HTML Context (Clean)"
+        echo "$DOM_CONTENT"
+        echo "::endgroup::"
+        
+        echo "::group::📄 Full Test File"
+        echo "$TEST_CONTENT"
         echo "::endgroup::"
          
        echo "✅ OpenAI API payload prepared"
