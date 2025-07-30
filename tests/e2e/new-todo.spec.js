@@ -6,11 +6,15 @@ describe('New todo', () => {
 
       cy.screenshot(`${testTitle} (failure)`);
 
-      // cy.window({ log: false }).then((win) => {
-      //   const html = win.document.documentElement.outerHTML;
-      //   cy.writeFile(`cypress/failures/${testTitle}.html`, html);
-      //   cy.writeFile(`cypress/failures/${testTitle}.log.txt`, errorMessage);
-      // });
+      cy.document().then((doc) => {
+        const html = doc.documentElement.outerHTML;
+ 
+        // Write DOM snapshot
+        cy.writeFile(`cypress/failures/${testTitle}.html`, html);
+ 
+        // Write error message
+        cy.writeFile(`cypress/failures/${testTitle}.log.txt`, errorMessage);
+      });
     }
   });
 
