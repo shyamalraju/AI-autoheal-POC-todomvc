@@ -1,7 +1,7 @@
 describe('New todo', () => {
   afterEach(function () {
     if (this.currentTest.state === 'failed') {
-      const testTitle = this.currentTest.title.replace(/[<>:"\/\\|?*]+/g, '-'); // Sanitize filename
+      const testTitle = this.currentTest.title //.replace(/[<>:"\/\\|?*]+/g, '-'); // Sanitize filename
       const errorMessage = this.currentTest.err?.stack || this.currentTest.err?.message || 'Unknown error';
 
       cy.screenshot(`${testTitle} (failure)`);
