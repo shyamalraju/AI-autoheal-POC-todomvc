@@ -39,18 +39,6 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         repository: ${{ github.repository }}
         run-id: ${{ github.event.workflow_run.id }}
-    
-    - name: Display cleaned DOM content
-      run: |
-        if [ -d "cypress/failures" ] && [ "$(find cypress/failures -name '*-clean.html' | head -1)" ]; then
-          for f in cypress/failures/*-clean.html; do
-            echo "::group::Cleaned DOM Contents of $f"
-            cat "$f"
-            echo "::endgroup::"
-          done
-        else
-          echo "⚠️ No cleaned DOM content files found"
-        fi
         
     - name: Analyze test failures
       run: |
@@ -142,9 +130,15 @@ jobs:
           
           if echo "$OPENAI_RESPONSE" | jq -e '.choices[0].message.content' > /dev/null 2>&1; then
             OPENAI_ANALYSIS=$(echo "$OPENAI_RESPONSE" | jq -r '.choices[0].message.content')
+            
+            echo "::group::📊 OpenAI Full Response"
+            echo "$OPENAI_RESPONSE" | jq '.'
+            echo "::endgroup::"
+            
             echo "::group::🤖 OpenAI Analysis Response"
             echo "$OPENAI_ANALYSIS"
             echo "::endgroup::"
+            
             echo "$OPENAI_ANALYSIS" > openai_analysis.txt
             echo "✅ OpenAI analysis saved for fix application"
           else
