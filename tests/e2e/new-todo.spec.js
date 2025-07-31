@@ -20,7 +20,13 @@ describe('New todo', () => {
           testName: this.currentTest.title,
           testFile: Cypress.spec.relative,
           specFile: Cypress.spec.name,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          error: {
+            message: this.currentTest.err?.message || 'Unknown error',
+            stack: this.currentTest.err?.stack || '',
+            line: this.currentTest.err?.line || null,
+            column: this.currentTest.err?.column || null
+          }
         };
         cy.writeFile(`cypress/failures/${testTitle}.context.json`, JSON.stringify(testContext, null, 2));
       });

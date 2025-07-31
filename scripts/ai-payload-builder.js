@@ -21,15 +21,23 @@ function extractTestName(domFilePath) {
 }
 
 function buildOpenAIPayload(context) {
-  const { testContent, domContent, repository, workflowName, failureUrl } = context;
+  const { testContent, domContent, repository, workflowName, failureUrl, testContext } = context;
 
   if (!testContent || !domContent) {
     throw new Error('Missing required content: testContent and domContent are required');
   }
 
+  // Format error location information
+  const errorLocation = testContext?.error ?
+    `- Error Line: ${testContext.error.line || 'unknown'}
+- Error Column: ${testContext.error.column || 'unknown'}
+- Error Message: ${testContext.error.message || 'unknown'}` :
+    'Error location information not available';
+
   const userPrompt = USER_PROMPT_TEMPLATE
     .replace('{{TEST_CONTENT}}', testContent)
     .replace('{{DOM_CONTENT}}', domContent)
+    .replace('{{ERROR_LOCATION}}', errorLocation)
     .replace('{{REPOSITORY}}', repository || 'Unknown')
     .replace('{{WORKFLOW_NAME}}', workflowName || 'Unknown')
     .replace('{{FAILURE_URL}}', failureUrl || 'Unknown');
@@ -76,7 +84,7 @@ function processTestFailure(options = {}) {
   console.log(`🧪 Test: ${testName} (${testContext.testFile})`);
 
   const payload = buildOpenAIPayload({
-    testContent, domContent, repository, workflowName, failureUrl
+    testContent, domContent, repository, workflowName, failureUrl, testContext
   });
 
   fs.writeFileSync(outputPath, JSON.stringify(payload, null, 2));

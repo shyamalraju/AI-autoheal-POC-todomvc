@@ -38,6 +38,9 @@ const USER_PROMPT_TEMPLATE = `Analyze the following test failure and provide spe
 {{DOM_CONTENT}}
 \`\`\`
 
+**ERROR LOCATION:**
+{{ERROR_LOCATION}}
+
 **WORKFLOW INFO:**
 - Repository: {{REPOSITORY}}
 - Workflow: {{WORKFLOW_NAME}}
@@ -49,15 +52,15 @@ Provide your analysis and fix in this exact JSON format:
   "analysis": "Brief analysis of the issue (e.g., 'Test expects 'todos' but finds 'todo's' in the DOM')",
   "fix": {
     "file": "exact file path (e.g., 'tests/e2e/new-todo.spec.js')",
-    "line": line number where the fix should be applied,
-    "column": column number where the change starts,
+    "line": line number where the fix should be applied (use the exact line from ERROR_LOCATION),
+    "column": column number where the change starts (use the exact column from ERROR_LOCATION),
     "oldCode": "exact code to replace (e.g., \"cy.contains('h1', 'todos')\")",
     "newCode": "exact replacement code (e.g., \"cy.contains('h1', \\\"todo's\\\")\")",
     "reason": "why this fix is needed (e.g., 'Text content mismatch between expected and actual')"
   }
 }
 
-**IMPORTANT:** Ensure the JSON is valid and all fields are provided.`;
+**IMPORTANT:** Use the exact line and column numbers from ERROR_LOCATION. Ensure the JSON is valid and all fields are provided.`;
 
 /**
  * OpenAI API configuration
