@@ -10,8 +10,9 @@ const path = require('path');
  * Parse AI response and extract fix information
  */
 function parseAIResponse(analysisFile) {
+  let content;
   try {
-    const content = fs.readFileSync(analysisFile, 'utf8');
+    content = fs.readFileSync(analysisFile, 'utf8');
 
     // Handle markdown code blocks (```json ... ```)
     let jsonContent = content.trim();
@@ -36,7 +37,11 @@ function parseAIResponse(analysisFile) {
     };
   } catch (error) {
     console.error('❌ Error parsing AI response:', error.message);
-    console.error('Raw content:', content.substring(0, 200) + '...');
+    if (content) {
+      console.error('Raw content:', content.substring(0, 200) + '...');
+    } else {
+      console.error('No content available');
+    }
     return null;
   }
 }
