@@ -1,0 +1,12 @@
+{
+  "code": {
+    "old": [
+      "cy.contains('h1', 'todos');",
+      "cy.get('.main .todo-list .view').contains('Demo');"
+    ],
+    "new": [
+      "cy.contains('h1', \"todo's\");",
+      "cy.get('.new-todo').should('have.value', 'Demo');"
+    ]
+  }
+}
