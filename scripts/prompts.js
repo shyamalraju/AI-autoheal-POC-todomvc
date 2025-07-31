@@ -43,7 +43,22 @@ const USER_PROMPT_TEMPLATE = `Analyze the following test failure and provide spe
 - Workflow: {{WORKFLOW_NAME}}
 - Failure URL: {{FAILURE_URL}}
 
-Provide your analysis and fix in JSON format.`;
+**RESPONSE FORMAT:**
+\`\`\`json
+{
+  "analysis": "Brief description of the issue",
+  "fix": {
+    "file": "tests/e2e/new-todo.spec.js",
+    "line": 25,
+    "old": "cy.contains('h1', 'todos')",
+    "new": "cy.contains('h1', \"todo's\")",
+    "type": "text_replacement",
+    "description": "Update selector to match actual text content"
+  }
+}
+\`\`\`
+
+Provide your analysis and fix in the exact JSON format above.`;
 
 /**
  * OpenAI API configuration

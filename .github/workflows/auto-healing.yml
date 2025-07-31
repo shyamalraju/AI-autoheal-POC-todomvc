@@ -191,13 +191,11 @@ jobs:
           echo "🔄 Fallback: Basic selector update based on common patterns"
           
           # Create a basic fix suggestion
-          cat > recommended_fix.txt <<EOF
-        Fallback fix: Check for common issues:
-        1. Text content mismatch (todos vs todo's)
-        2. Element not found
-        3. Timing issues
-        4. Selector changes
-        EOF
+          echo "Fallback fix: Check for common issues:" > recommended_fix.txt
+          echo "1. Text content mismatch (todos vs todo's)" >> recommended_fix.txt
+          echo "2. Element not found" >> recommended_fix.txt
+          echo "3. Timing issues" >> recommended_fix.txt
+          echo "4. Selector changes" >> recommended_fix.txt
         fi
         
         echo "✅ AI-powered fix generation completed"
@@ -212,37 +210,40 @@ jobs:
       run: |
         echo "🔧 Applying AI-generated fixes..."
         
-        if [ -f "recommended_fix.txt" ]; then
-          echo "📄 Fix recommendations found"
+        if [ -f "openai_analysis.txt" ]; then
+          echo "📄 AI analysis found, applying fixes..."
           
-          RECOMMENDED_FIX=$(cat recommended_fix.txt)
-          echo "🔍 Recommended fix: $RECOMMENDED_FIX"
+          # Apply the fix using our code fixer
+          node scripts/code-fixer.js openai_analysis.txt
           
-          # For now, just document the recommended fixes as comments
-          echo "📝 Creating fix documentation..."
-          
-          # Create a summary of recommended changes
-          echo "📊 Summary of recommended fixes:" > fix_summary.txt
-          echo "- Recommendation: $RECOMMENDED_FIX" >> fix_summary.txt
-          echo "- Files to modify: tests/e2e/new-todo.spec.js" >> fix_summary.txt
-          echo "- Change type: Selector/locator update" >> fix_summary.txt
-          echo "- Status: Documented for manual review" >> fix_summary.txt
-          
-          echo "✅ Fix recommendations documented"
-          echo "📋 Manual review required to apply changes"
+          if [ $? -eq 0 ]; then
+            echo "✅ Fix applied successfully"
+            
+            # Read fix info for commit message
+            if [ -f "fix-info.json" ]; then
+              FIX_INFO=$(cat fix-info.json)
+              echo "📋 Fix details:"
+              echo "$FIX_INFO"
+            fi
+            
+          else
+            echo "❌ Fix application failed"
+            echo "📝 Creating manual review summary"
+            
+            echo "AI fix application failed." > fix_summary.txt
+            echo "Manual review required." >> fix_summary.txt
+            echo "Check openai_analysis.txt for AI recommendations." >> fix_summary.txt
+          fi
           
         else
-          echo "⚠️ No fix recommendations found"
+          echo "⚠️ No AI analysis found"
           echo "📝 Creating placeholder fix summary"
           
-          cat > fix_summary.txt << EOF
-        No specific fixes recommended.
-        Manual review of test failure required.
-        Check Claude analysis for detailed recommendations.
-        EOF
+          echo "No AI analysis available." > fix_summary.txt
+          echo "Manual review of test failure required." >> fix_summary.txt
         fi
         
-        echo "✅ Fix documentation completed"
+        echo "✅ Fix processing completed"
         
     - name: Push auto-healing branch
       run: |
