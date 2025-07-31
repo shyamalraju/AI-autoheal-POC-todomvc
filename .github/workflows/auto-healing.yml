@@ -81,6 +81,7 @@ jobs:
         
         # Note: Videos are disabled in cypress.json (video: false)
         echo "ℹ️ Videos are disabled in Cypress configuration"
+        
     - name: Build AI Payload
       run: |
         echo "🔧 Building AI payload for test failure analysis..."
@@ -95,20 +96,9 @@ jobs:
         # Build payload using the dedicated module
         node scripts/ai-payload-builder.js "$DOM_FILE"
         
-        # Display payload summary
-        echo "::group::📤 OpenAI Request Payload Summary"
-        echo "🤖 Model: gpt-4"
-        echo "🎯 Max Tokens: 1000"
-        echo "🌡️ Temperature: 0.1"
-        echo ""
-        echo "📋 System Message:"
-        echo "You are an expert test automation engineer specializing in fixing Cypress test failures."
-        echo ""
-        echo "👤 User Message Summary:"
-        echo "- Instructions: 5 steps for analyzing test failures"
-        echo "- Test File: $(cat tests/e2e/new-todo.spec.js | wc -l) lines of Cypress test code"
-        echo "- DOM Content: $(cat "$DOM_FILE" | wc -c) characters of cleaned HTML"
-        echo "- Workflow Info: Repository, workflow name, and failure URL"
+        # Display full payload
+        echo "::group::📤 OpenAI Request Payload"
+        cat openai_payload.json
         echo "::endgroup::"
         
         # Extract test name from DOM file
