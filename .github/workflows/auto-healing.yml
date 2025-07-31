@@ -156,51 +156,32 @@ jobs:
         echo "- Has screenshots: $([ -d "cypress/screenshots" ] && [ "$(ls -A cypress/screenshots 2>/dev/null)" ] && echo "Yes" || echo "No")"
         echo "- Has DOM content: $([ -d "cypress/failures" ] && [ "$(ls -A cypress/failures 2>/dev/null)" ] && echo "Yes" || echo "No")"
         
-    - name: Generate AI-powered fixes
+    - name: Parse AI Fix Response
       run: |
-        echo "🤖 Generating AI-powered fixes based on OpenAI analysis..."
+        echo "🔍 Parsing AI fix response..."
         
         if [ -f "openai_analysis.txt" ]; then
-          echo "📄 OpenAI analysis found, processing recommendations..."
+          echo "📄 OpenAI analysis found, parsing structured fix..."
           
-          OPENAI_ANALYSIS=$(cat openai_analysis.txt)
-          echo "🔍 OpenAI's Analysis:"
-          echo "$OPENAI_ANALYSIS"
+          # Parse and validate the AI response
+          node scripts/fix-parser.js openai_analysis.txt
           
-          # Try to parse JSON response
-          if echo "$OPENAI_ANALYSIS" | jq -e '.' > /dev/null 2>&1; then
-            ANALYSIS=$(echo "$OPENAI_ANALYSIS" | jq -r '.analysis // empty')
-            FIX=$(echo "$OPENAI_ANALYSIS" | jq -r '.fix // empty')
-            
-            echo "📊 Parsed Analysis: $ANALYSIS"
-            echo "🔧 Recommended Fix: $FIX"
-            
-            # Save fix for application step
-            echo "$FIX" > recommended_fix.txt
-            echo "✅ Fix recommendation saved"
-            
+          if [ $? -eq 0 ]; then
+            echo "✅ AI fix response parsed and validated"
+            echo "📊 Fix details saved for application"
           else
-            echo "📝 Non-JSON response, extracting fix information..."
-            # If OpenAI responds in plain text, save it for manual review
-            echo "$OPENAI_ANALYSIS" > recommended_fix.txt
-            echo "✅ Analysis saved for review"
+            echo "❌ Failed to parse AI response"
+            echo "📝 Saving raw response for manual review"
+            cp openai_analysis.txt recommended_fix.txt
           fi
           
         else
-          echo "⚠️ No OpenAI analysis found, using fallback approach"
-          echo "🔄 Fallback: Basic selector update based on common patterns"
-          
-          # Create a basic fix suggestion
-          cat > recommended_fix.txt <<EOF
-        Fallback fix: Check for common issues:
-        1. Text content mismatch (todos vs todo's)
-        2. Element not found
-        3. Timing issues
-        4. Selector changes
-        EOF
+          echo "⚠️ No OpenAI analysis found"
+          echo "📝 Creating placeholder for manual review"
+          echo "No AI analysis available" > recommended_fix.txt
         fi
         
-        echo "✅ AI-powered fix generation completed"
+        echo "✅ AI fix parsing completed"
         
     - name: Create auto-healing branch
       run: |

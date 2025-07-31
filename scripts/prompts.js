@@ -26,7 +26,7 @@ const USER_PROMPT_TEMPLATE = `Analyze the following test failure and provide spe
 2. Identify why selectors are failing (element not found, text mismatch, etc.)
 3. Provide the exact code changes needed to fix the test
 4. Focus on selector/locator fixes only
-5. Respond in JSON format with 'analysis' and 'fix' fields
+5. Respond in JSON format with structured fix data
 
 **TEST FILE:**
 \`\`\`javascript
@@ -43,7 +43,21 @@ const USER_PROMPT_TEMPLATE = `Analyze the following test failure and provide spe
 - Workflow: {{WORKFLOW_NAME}}
 - Failure URL: {{FAILURE_URL}}
 
-Provide your analysis and fix in JSON format.`;
+**RESPONSE FORMAT:**
+Provide your analysis and fix in this exact JSON format:
+{
+  "analysis": "Brief analysis of the issue (e.g., 'Test expects 'todos' but finds 'todo's' in the DOM')",
+  "fix": {
+    "file": "exact file path (e.g., 'tests/e2e/new-todo.spec.js')",
+    "line": line number where the fix should be applied,
+    "column": column number where the change starts,
+    "oldCode": "exact code to replace (e.g., \"cy.contains('h1', 'todos')\")",
+    "newCode": "exact replacement code (e.g., \"cy.contains('h1', \\\"todo's\\\")\")",
+    "reason": "why this fix is needed (e.g., 'Text content mismatch between expected and actual')"
+  }
+}
+
+**IMPORTANT:** Ensure the JSON is valid and all fields are provided.`;
 
 /**
  * OpenAI API configuration

@@ -83,7 +83,7 @@ function processTestFailure(options = {}) {
   console.log(`✅ Payload saved to ${outputPath}`);
 
   return {
-    testName, testContent, domContent, payload,
+    testName, testContent, domContent, payload, testContext,
     metrics: {
       testLines: testContent.split('\n').length,
       domChars: domContent.length,
