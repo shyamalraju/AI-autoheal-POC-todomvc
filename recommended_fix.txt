@@ -1,0 +1,12 @@
+{
+  "code_changes": [
+    {
+      "original": "cy.contains('h1', 'todos');",
+      "fixed": "cy.contains('h1', \"todo's\");"
+    },
+    {
+      "original": "cy.get('.main .todo-list .view').contains('Demo');",
+      "fixed": "cy.get('.new-todo').should('have.value', 'Demo');"
+    }
+  ]
+}

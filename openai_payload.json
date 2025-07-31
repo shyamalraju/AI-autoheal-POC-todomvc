@@ -1,0 +1,15 @@
+{
+  "model": "gpt-4",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are an expert test automation engineer specializing in fixing Cypress test failures. \nYour expertise includes:\n- Cypress selector strategies and best practices\n- DOM analysis and element identification\n- Test failure diagnosis and resolution\n- Web application testing patterns\n\nAnalyze test failures and provide specific selector/locator fixes."
+    },
+    {
+      "role": "user",
+      "content": "Analyze the following test failure and provide specific selector/locator fixes.\n\n**INSTRUCTIONS:**\n1. Compare the test expectations with the actual DOM content\n2. Identify why selectors are failing (element not found, text mismatch, etc.)\n3. Provide the exact code changes needed to fix the test\n4. Focus on selector/locator fixes only\n5. Respond in JSON format with 'analysis' and 'fix' fields\n\n**TEST FILE:**\n```javascript\ndescribe('New todo', () => {\n  afterEach(function () {\n    if (this.currentTest.state === 'failed') {\n      const testTitle = this.currentTest.title //.replace(/[<>:\"\\/\\\\|?*]+/g, '-'); // Sanitize filename\n      const errorMessage = this.currentTest.err?.stack || this.currentTest.err?.message || 'Unknown error';\n\n      cy.screenshot(`${testTitle} (failure)`);\n\n      cy.document().then((doc) => {\n        const html = doc.documentElement.outerHTML;\n\n        // Write DOM snapshot\n        cy.writeFile(`cypress/failures/${testTitle}.html`, html);\n\n        // Write error message\n        cy.writeFile(`cypress/failures/${testTitle}.log.txt`, errorMessage);\n\n        // Write test context\n        const testContext = {\n          testName: this.currentTest.title,\n          testFile: Cypress.spec.relative,\n          specFile: Cypress.spec.name,\n          timestamp: new Date().toISOString()\n        };\n        cy.writeFile(`cypress/failures/${testTitle}.context.json`, JSON.stringify(testContext, null, 2));\n      });\n    }\n  });\n\n  it('should create new todo', () => {\n    cy.visit('/');\n    cy.contains('h1', 'todos');\n\n    cy.get('.new-todo')\n      .type('Demo')\n      .type('{enter}');\n\n    cy.get('.main .todo-list .view').contains('Demo');\n  });\n});\n\n```\n\n**ACTUAL DOM CONTENT:**\n```html\n<html><head><title>TodoMVC built with React and Redux</title></head><body>\n    <app-root><div id=\"app\"><section class=\"todoapp\"><header class=\"header\"><h1>todo's</h1><input class=\"new-todo\" placeholder=\"What needs to be done?\" data-testid=\"todo-create\" value=\"\"></header></section><footer class=\"info\"><p data-testid=\"instruction\">Double-click to edit a todo</p><p>Created by <a href=\"http://github.com/blacksonic/\">blacksonic</a></p><p>Part of <a href=\"http://todomvc.com\">TodoMVC</a></p></footer></div></app-root>\n  \n\n</body></html>\n```\n\n**WORKFLOW INFO:**\n- Repository: shyamalraju/AI-autoheal-POC-todomvc\n- Workflow: AI Auto-Healing Pipeline\n- Failure URL: https://github.com\n\nProvide your analysis and fix in JSON format."
+    }
+  ],
+  "max_tokens": 1000,
+  "temperature": 0.1
+}

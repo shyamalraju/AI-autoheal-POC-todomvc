@@ -1,0 +1,6 @@
+{
+  "testName": "should create new todo",
+  "testFile": "tests/e2e/new-todo.spec.js",
+  "specFile": "new-todo.spec.js",
+  "timestamp": "2025-07-31T22:30:47.900Z"
+}
