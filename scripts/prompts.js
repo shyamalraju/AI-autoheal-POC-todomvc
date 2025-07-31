@@ -60,7 +60,11 @@ Provide your analysis and fix in this exact JSON format:
   }
 }
 
-**IMPORTANT:** Use the exact line and column numbers from ERROR_LOCATION. Ensure the JSON is valid and all fields are provided.`;
+**IMPORTANT:** 
+- Use the exact line and column numbers from ERROR_LOCATION
+- If ERROR_LOCATION shows "unknown", analyze the test file to find the correct line
+- Line and column must be numbers, not strings like "unknown"
+- Ensure the JSON is valid and all fields are provided`;
 
 /**
  * OpenAI API configuration

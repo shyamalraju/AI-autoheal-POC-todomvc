@@ -15,6 +15,18 @@ describe('New todo', () => {
         // Write error message
         cy.writeFile(`cypress/failures/${testTitle}.log.txt`, errorMessage);
 
+        // Parse error stack to extract line information
+        const errorStack = this.currentTest.err?.stack || '';
+        let errorLine = null;
+        let errorColumn = null;
+
+        // Try to extract line/column from stack trace
+        const stackMatch = errorStack.match(/at.*\(.*:(\d+):(\d+)\)/);
+        if (stackMatch) {
+          errorLine = parseInt(stackMatch[1]);
+          errorColumn = parseInt(stackMatch[2]);
+        }
+
         // Write test context
         const testContext = {
           testName: this.currentTest.title,
@@ -24,8 +36,8 @@ describe('New todo', () => {
           error: {
             message: this.currentTest.err?.message || 'Unknown error',
             stack: this.currentTest.err?.stack || '',
-            line: this.currentTest.err?.line || null,
-            column: this.currentTest.err?.column || null
+            line: errorLine,
+            column: errorColumn
           }
         };
         cy.writeFile(`cypress/failures/${testTitle}.context.json`, JSON.stringify(testContext, null, 2));

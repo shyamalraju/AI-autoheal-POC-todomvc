@@ -33,8 +33,24 @@ function validateFixResponse(response) {
 
     // Validate data types
     if (typeof fix.file !== 'string') throw new Error('file must be a string');
+
+    // Convert line/column to numbers if they're strings
+    if (typeof fix.line === 'string') {
+      if (fix.line === 'unknown') {
+        throw new Error('line cannot be "unknown" - need exact line number');
+      }
+      fix.line = parseInt(fix.line);
+    }
     if (typeof fix.line !== 'number') throw new Error('line must be a number');
+
+    if (typeof fix.column === 'string') {
+      if (fix.column === 'unknown') {
+        throw new Error('column cannot be "unknown" - need exact column number');
+      }
+      fix.column = parseInt(fix.column);
+    }
     if (typeof fix.column !== 'number') throw new Error('column must be a number');
+
     if (typeof fix.oldCode !== 'string') throw new Error('oldCode must be a string');
     if (typeof fix.newCode !== 'string') throw new Error('newCode must be a string');
     if (typeof fix.reason !== 'string') throw new Error('reason must be a string');
