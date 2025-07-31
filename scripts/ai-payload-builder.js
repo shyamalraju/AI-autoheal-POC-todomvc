@@ -47,7 +47,6 @@ function buildOpenAIPayload(context) {
 
 function processTestFailure(options = {}) {
   const {
-    testFilePath = 'tests/e2e/new-todo.spec.js',
     domFilePath,
     repository,
     workflowName,
@@ -57,15 +56,24 @@ function processTestFailure(options = {}) {
 
   console.log('🔧 Building AI payload...');
 
-  const testContent = readFile(testFilePath, 'Test file not found');
+  // Read context file to get test file path
+  const testName = extractTestName(domFilePath);
+  const contextFile = domFilePath.replace('-clean.html', '.context.json');
+  const context = readFile(contextFile, 'Test context not found');
+
+  if (!context) {
+    throw new Error('Failed to read test context');
+  }
+
+  const testContext = JSON.parse(context);
+  const testContent = readFile(testContext.testFile, 'Test file not found');
   const domContent = readFile(domFilePath, 'DOM file not found');
 
   if (!testContent || !domContent) {
     throw new Error('Failed to read required content');
   }
 
-  const testName = extractTestName(domFilePath);
-  console.log(`🧪 Test: ${testName}`);
+  console.log(`🧪 Test: ${testName} (${testContext.testFile})`);
 
   const payload = buildOpenAIPayload({
     testContent, domContent, repository, workflowName, failureUrl

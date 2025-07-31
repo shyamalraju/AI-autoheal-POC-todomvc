@@ -14,13 +14,22 @@ describe('New todo', () => {
 
         // Write error message
         cy.writeFile(`cypress/failures/${testTitle}.log.txt`, errorMessage);
+
+        // Write test context
+        const testContext = {
+          testName: this.currentTest.title,
+          testFile: Cypress.spec.relative,
+          specFile: Cypress.spec.name,
+          timestamp: new Date().toISOString()
+        };
+        cy.writeFile(`cypress/failures/${testTitle}.context.json`, JSON.stringify(testContext, null, 2));
       });
     }
   });
 
   it('should create new todo', () => {
     cy.visit('/');
-    cy.contains('h1', 'todo-list');
+    cy.contains('h1', 'todos');
 
     cy.get('.new-todo')
       .type('Demo')
