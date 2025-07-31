@@ -20,7 +20,7 @@ describe('New todo', () => {
 
   it('should create new todo', () => {
     cy.visit('/');
-    cy.contains('h1', 'wrong-text');
+    cy.contains('h1', 'todo-list');
 
     cy.get('.new-todo')
       .type('Demo')
