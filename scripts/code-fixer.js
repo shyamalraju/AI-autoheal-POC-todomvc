@@ -12,7 +12,16 @@ const path = require('path');
 function parseAIResponse(analysisFile) {
   try {
     const content = fs.readFileSync(analysisFile, 'utf8');
-    const response = JSON.parse(content);
+
+    // Handle markdown code blocks (```json ... ```)
+    let jsonContent = content.trim();
+    if (jsonContent.startsWith('```json')) {
+      jsonContent = jsonContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    } else if (jsonContent.startsWith('```')) {
+      jsonContent = jsonContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
+    }
+
+    const response = JSON.parse(jsonContent);
 
     // Extract fix from AI response
     const fix = response.fix || response;
@@ -27,6 +36,7 @@ function parseAIResponse(analysisFile) {
     };
   } catch (error) {
     console.error('❌ Error parsing AI response:', error.message);
+    console.error('Raw content:', content.substring(0, 200) + '...');
     return null;
   }
 }
