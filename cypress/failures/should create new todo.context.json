@@ -1,0 +1,12 @@
+{
+  "testName": "should create new todo",
+  "testFile": "tests/e2e/new-todo.spec.js",
+  "specFile": "new-todo.spec.js",
+  "timestamp": "2025-08-01T01:10:37.776Z",
+  "error": {
+    "message": "Timed out retrying after 4000ms: Expected to find content: 'todos' within the selector: 'h1' but never did.",
+    "stack": "AssertionError: Timed out retrying after 4000ms: Expected to find content: 'todos' within the selector: 'h1' but never did.\n    at Context.eval (webpack://todomvc-react/./tests/e2e/new-todo.spec.js:50:7)",
+    "line": 50,
+    "column": 7
+  }
+}
