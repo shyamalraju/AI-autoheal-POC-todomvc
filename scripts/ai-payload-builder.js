@@ -35,6 +35,7 @@ function buildOpenAIPayload(context) {
     'Error location information not available';
 
   const userPrompt = USER_PROMPT_TEMPLATE
+    .replace('{{TEST_FILE_PATH}}', testContext.testFile || 'Unknown')
     .replace('{{TEST_CONTENT}}', testContent)
     .replace('{{DOM_CONTENT}}', domContent)
     .replace('{{ERROR_LOCATION}}', errorLocation)

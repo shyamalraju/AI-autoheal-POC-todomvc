@@ -28,7 +28,9 @@ const USER_PROMPT_TEMPLATE = `Analyze the following test failure and provide spe
 4. Focus on selector/locator fixes only
 5. Respond in JSON format with structured fix data
 
-**TEST FILE:**
+**TEST FILE PATH:** {{TEST_FILE_PATH}}
+
+**TEST FILE CONTENT:**
 \`\`\`javascript
 {{TEST_CONTENT}}
 \`\`\`
@@ -51,7 +53,7 @@ Provide your analysis and fix in this exact JSON format:
 {
   "analysis": "Brief analysis of the issue (e.g., 'Test expects 'todos' but finds 'todo's' in the DOM')",
   "fix": {
-    "file": "exact file path (e.g., 'tests/e2e/new-todo.spec.js')",
+    "file": "{{TEST_FILE_PATH}}",
     "line": line number where the fix should be applied (use the exact line from ERROR_LOCATION),
     "column": column number where the change starts (use the exact column from ERROR_LOCATION),
     "oldCode": "exact code to replace (e.g., \"cy.contains('h1', 'todos')\")",
