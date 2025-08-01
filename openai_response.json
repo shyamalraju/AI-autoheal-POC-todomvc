@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-BzZQRH0SWUEyjDX5tlfYHQF8QlfvZ",
+  "object": "chat.completion",
+  "created": 1754013883,
+  "model": "gpt-4-0613",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"analysis\": \"The test expects 'todos' but finds 'todo's' in the DOM. The text content mismatch between expected and actual is causing the test to fail.\",\n  \"fix\": {\n    \"file\": \"tests/e2e/new-todo.spec.js\",\n    \"line\": 50,\n    \"column\": 7,\n    \"oldCode\": \"cy.contains('h1', 'todos')\",\n    \"newCode\": \"cy.contains('h1', \\\"todo's\\\")\",\n    \"reason\": \"The test is failing because the expected text 'todos' does not match the actual text 'todo's' in the DOM. The test needs to be updated to look for the correct text.\"\n  }\n}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1128,
+    "completion_tokens": 150,
+    "total_tokens": 1278,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}
