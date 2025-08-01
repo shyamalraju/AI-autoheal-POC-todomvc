@@ -11,12 +11,8 @@ on:
         description: 'What triggered this workflow'
         required: false
         default: 'manual'
-      fix_verification:
-        description: 'Whether this is a fix verification run'
-        required: false
-        default: 'false'
-      apply_fix_retry:
-        description: 'Whether this is a retry after applying a fix'
+      auto_heal_verification:
+        description: 'Whether this is an auto-healing verification run'
         required: false
         default: 'false'
 
@@ -91,7 +87,7 @@ jobs:
         if-no-files-found: ignore
         
     - name: Auto-healing notification
-      if: failure() && inputs.apply_fix_retry != 'true'
+      if: failure() && inputs.auto_heal_verification != 'true'
       run: |
         echo "🚨 Test failure detected! Auto-healing pipeline triggered."
         echo "Failure details will be sent to auto-healing system."
@@ -103,7 +99,7 @@ jobs:
         # - Create pull request with fixes
         
     - name: Fix verification failure notification
-      if: failure() && inputs.apply_fix_retry == 'true'
+      if: failure() && inputs.auto_heal_verification == 'true'
       run: |
         echo "❌ Fix verification failed!"
         echo "The AI-generated fix did not resolve the test failure."
@@ -112,7 +108,7 @@ jobs:
         echo "⚠️ Manual intervention required - the auto-healing fix was not successful"
         
     - name: Fix verification notification
-      if: success() && inputs.apply_fix_retry == 'true'
+      if: success() && inputs.auto_heal_verification == 'true'
       run: |
         echo "✅ Fix verification successful!"
         echo "The AI-generated fix has been verified to work correctly."

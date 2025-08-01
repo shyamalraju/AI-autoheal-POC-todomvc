@@ -307,7 +307,7 @@ jobs:
         # Get the current branch name
         BRANCH_NAME=$(git branch --show-current)
         
-        # Use curl to trigger the workflow via GitHub API with apply_fix_retry=true
+        # Use curl to trigger the workflow via GitHub API with auto_heal_verification=true
         curl -X POST \
           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
@@ -316,7 +316,7 @@ jobs:
             "ref": "'$BRANCH_NAME'",
             "inputs": {
               "triggered_by": "auto-healing-pipeline",
-              "apply_fix_retry": "true"
+              "auto_heal_verification": "true"
             }
           }'
         
