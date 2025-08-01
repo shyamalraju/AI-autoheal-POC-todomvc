@@ -183,43 +183,82 @@ jobs:
         
         echo "✅ AI fix parsing completed"
         
+    - name: Apply AI Fixes
+      run: |
+        echo "🔧 Applying AI-generated fixes..."
+        
+        if [ -f "openai_analysis.txt" ]; then
+          echo "📄 OpenAI analysis found, attempting to apply fixes..."
+          
+          # Try to apply the fix
+          node scripts/code-fixer.js openai_analysis.txt
+          
+          if [ $? -eq 0 ]; then
+            echo "✅ AI fix applied successfully"
+            echo "📊 Fix summary saved to fix-summary.json"
+          else
+            echo "❌ Failed to apply AI fix"
+            echo "📝 Fix will be documented for manual review"
+          fi
+          
+        else
+          echo "⚠️ No OpenAI analysis found"
+          echo "📝 No fixes to apply"
+        fi
+        
+        echo "✅ Fix application completed"
+        
     - name: Create auto-healing branch
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git checkout -b auto-healing/fix-${{ github.run_number }}-${{ github.sha }}
         
-    - name: Apply AI-generated fixes
+    - name: Document Fix Results
       run: |
-        echo "🔧 Applying AI-generated fixes..."
+        echo "📝 Documenting fix results..."
         
-        if [ -f "recommended_fix.txt" ]; then
-          echo "📄 Fix recommendations found"
+        if [ -f "fix-summary.json" ]; then
+          echo "✅ AI fix was applied successfully"
+          echo "📊 Fix details:"
+          cat fix-summary.json | jq '.fix'
           
-          RECOMMENDED_FIX=$(cat recommended_fix.txt)
-          echo "🔍 Recommended fix: $RECOMMENDED_FIX"
+          # Create a summary for the PR
+          cat > fix_summary.txt << EOF
+        🤖 AI Auto-Healing Fix Applied
+        
+        📄 File: $(cat fix-summary.json | jq -r '.fix.file')
+        📍 Location: Line $(cat fix-summary.json | jq -r '.fix.line'), Column $(cat fix-summary.json | jq -r '.fix.column')
+        🔍 Old Code: $(cat fix-summary.json | jq -r '.fix.oldCode')
+        ✨ New Code: $(cat fix-summary.json | jq -r '.fix.newCode')
+        📝 Reason: $(cat fix-summary.json | jq -r '.fix.reason')
+        
+        💾 Backup created: $(cat fix-summary.json | jq -r '.backup')
+        ⏰ Applied: $(cat fix-summary.json | jq -r '.timestamp')
+        EOF
           
-          # For now, just document the recommended fixes as comments
-          echo "📝 Creating fix documentation..."
-          
-          # Create a summary of recommended changes
-          echo "📊 Summary of recommended fixes:" > fix_summary.txt
-          echo "- Recommendation: $RECOMMENDED_FIX" >> fix_summary.txt
-          echo "- Files to modify: tests/e2e/new-todo.spec.js" >> fix_summary.txt
-          echo "- Change type: Selector/locator update" >> fix_summary.txt
-          echo "- Status: Documented for manual review" >> fix_summary.txt
-          
-          echo "✅ Fix recommendations documented"
-          echo "📋 Manual review required to apply changes"
-          
-        else
-          echo "⚠️ No fix recommendations found"
-          echo "📝 Creating placeholder fix summary"
+        elif [ -f "openai_analysis.txt" ]; then
+          echo "⚠️ AI analysis available but fix could not be applied"
+          echo "📝 Creating manual review summary"
           
           cat > fix_summary.txt << EOF
-        No specific fixes recommended.
-        Manual review of test failure required.
-        Check Claude analysis for detailed recommendations.
+        🤖 AI Analysis Available
+        
+        The AI provided analysis but the fix could not be automatically applied.
+        Please review the analysis and apply fixes manually.
+        
+        📄 Analysis saved in: openai_analysis.txt
+        📊 Full response available in workflow logs
+        EOF
+          
+        else
+          echo "❌ No AI analysis or fix data available"
+          
+          cat > fix_summary.txt << EOF
+        ❌ No Auto-Healing Data Available
+        
+        No AI analysis or fix data was generated.
+        Please review the test failure manually.
         EOF
         fi
         
@@ -235,24 +274,22 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         title: "🤖 Auto-healing: Fix test failures"
         body: |
-          ## AI Auto-Healing Fix
+          ## 🤖 AI Auto-Healing Fix
           
           This PR contains automated fixes for failing tests detected by the auto-healing pipeline.
           
-          **Changes made:**
-          - [ ] Updated selectors
-          - [ ] Fixed timing issues  
-          - [ ] Updated test expectations
-          - [ ] Added retry mechanisms
+          **🔧 Fix Details:**
+          $(cat fix_summary.txt)
           
-          **Test Results:**
+          **📊 Test Results:**
           - Original failure: ${{ github.event.workflow_run.html_url }}
           - Auto-healing run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           
-          **Next Steps:**
-          1. Review the changes
-          2. Run tests locally
+          **✅ Next Steps:**
+          1. Review the applied changes
+          2. Run tests locally to verify the fix
           3. Merge if tests pass
+          4. The original file is backed up with `.backup` extension
         branch: auto-healing/fix-${{ github.run_number }}-${{ github.sha }}
         base: master
         delete-branch: true 
