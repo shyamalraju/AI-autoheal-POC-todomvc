@@ -81,9 +81,6 @@ This example demonstrates a modular architecture for implementing self-healing c
                                      (Test Rerun)
 ```
 
-**Current Example Scope**: Cypress Test Execution → Failure Detection → Context Composition → AI Analysis & Generation → Fix Application → Test Rerun  
-**Future Development**: Enhanced validation → Human Approval (PR)
-
 ## 📁 Project Structure
 
 ```
